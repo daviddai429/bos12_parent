@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context.xsd
+						http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop.xsd
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<!-- 为action创建代理对象做配置 -->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+		<!-- cglib（基于类创建代理对象） jdk（基于接口创建代理对象）创建代理对象
+		true:强制使用cglib来创建代理对象
+		 -->
+		<property name="proxyTargetClass" value="true"></property>
+	</bean>
+	<!-- 配置切面类  切点+通知-->
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor"></bean>
+	<!-- 注入shiroFilter bean -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<!-- 注入安全管理器 -->
+		<property name="securityManager" ref="securityManager"></property>
+		<!-- loginUrl登录 认证不通过 跳转登录页面 -->
+		<property name="loginUrl" value="/login.jsp"></property>
+		<!-- 没有权限跳转的页面 -->
+		<property name="unauthorizedUrl" value="/unauthorizedUrl.jsp"></property>
+		<!-- 权限拦截规则 -->
+		<property name="filterChainDefinitions">
+			<value>
+				<!-- anon:匿名访问   **：所有子目录都有权限访问    perms：当用户访问page_base_staff.action 必须要有staff的权限-->
+				/css/** = anon
+				/js/** = anon
+				/images/** = anon
+				/validatecode.jsp* = anon
+				/login.jsp* = anon
+				/userAction_login.action = anon
+				/page_base_staff.action = perms["staff"]
+				/** = authc
+			</value>
+		</property>
+	</bean>
+	<!-- 自定义bosRealm -->
+	<bean id="bosRealm" class="cn.itast.bos.web.realm.BosRealm"></bean>
+	<!-- 注入安全管理器 -->
+   <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+   		<!-- 注入realm -->
+   		<property name="realm" ref="bosRealm"></property>
+   		<!-- <property name="realm" ref="jdbcRealm"></property> -->
+   		<!-- 注入缓存管理器 -->
+   		<property name="cacheManager" ref="cacheManager"></property>
+   </bean>
+   
+   <!-- 注册一个缓存管理器 -->
+   <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+   		<!-- 注入ehcache.xml -->
+   		<property name="cacheManagerConfigFile" value="classpath:ehcache.xml"></property>
+   </bean>
+   
+   <!-- shiro自带jdbcRealm -->
+   <!-- <bean id="jdbcRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
+   		注入数据源
+   		<property name="dataSource" ref="dataSource"></property>
+   		<property name="authenticationQuery" value="select password from t_user where username = ?"></property>
+   </bean> -->
+   
+	<bean id="config" class="cn.itcast.bos.utils.Config">
+        <property name="exportPath">
+            <value>C\:\\Test</value>
+        </property>
+        <property name="templateFolder">
+            <value>/WEB-INF/templates</value>
+        </property>
+    </bean>
+	<!-- 数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="com.mysql.jdbc.Driver"/>
+		<property name="jdbcUrl" value="jdbc:mysql:///bos12"/>
+		<property name="user" value="bosuser12"/>
+		<property name="password" value="bosuser12"/>
+	</bean>
+	<!-- spring与Hibernate整合配置 -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+			</props>
+		</property>
+		<!-- 映射文件路径 -->
+		<property name="mappingDirectoryLocations">
+			<list>
+				<value>classpath:cn/itcast/bos/domain</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 事务管理器 -->
+	<bean id="tranactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	<!-- 开启注解扫描 设置扫描包 -->
+	<context:component-scan base-package="cn.itcast.bos"/>
+	<!-- 开启事务注解 -->
+	<tx:annotation-driven transaction-manager="tranactionManager"/>
+						
+</beans>

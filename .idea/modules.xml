@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/bos12_dao/bos12_dao.iml" filepath="$PROJECT_DIR$/bos12_dao/bos12_dao.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bos12_domain/bos12_domain.iml" filepath="$PROJECT_DIR$/bos12_domain/bos12_domain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bos12_parent.iml" filepath="$PROJECT_DIR$/bos12_parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bos12_service/bos12_service.iml" filepath="$PROJECT_DIR$/bos12_service/bos12_service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bos12_utils/bos12_utils.iml" filepath="$PROJECT_DIR$/bos12_utils/bos12_utils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bos12_web/bos12_web.iml" filepath="$PROJECT_DIR$/bos12_web/bos12_web.iml" />
+    </modules>
+  </component>
+</project>
